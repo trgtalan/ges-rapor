@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GES Yatırım Raporu</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" defer></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+  :root {
+    --solar-gold:#F5A623; --solar-deep:#E8881A;
+    --navy:#0B2545;       --navy-mid:#134074; --navy-light:#1A5276;
+    --sky:#EEF4FF;        --green:#1A8C5A;    --green-light:#E8F5EE;
+    --border:#E2E8F0;     --white:#FFFFFF;    --gray-text:#4A5568; --gray-light:#F7F9FC;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',sans-serif;background:#F0F4F8;color:var(--navy);font-size:14px;line-height:1.6}
+  .cover{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-mid) 60%,#1B6CA8 100%);min-height:100vh;display:flex;flex-direction:column;position:relative;overflow:hidden}
+  .cover-sun{position:absolute;top:-120px;right:-120px;width:480px;height:480px;border-radius:50%;background:radial-gradient(circle,rgba(245,166,35,.18) 0%,rgba(245,166,35,.04) 60%,transparent 80%)}
+  .cover-rays{position:absolute;top:80px;right:80px;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,rgba(245,166,35,.45) 0%,rgba(245,166,35,.12) 50%,transparent 75%);animation:pulse 4s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:.8;transform:scale(1)}50%{opacity:1;transform:scale(1.07)}}
+  .cover-header{padding:40px 56px 0;display:flex;justify-content:space-between;align-items:flex-start}
+  .cover-firma{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;color:rgba(255,255,255,.6);letter-spacing:2px;text-transform:uppercase}
+  .cover-badge{background:rgba(245,166,35,.15);border:1px solid rgba(245,166,35,.4);border-radius:20px;padding:6px 18px;font-size:12px;color:var(--solar-gold);font-weight:500}
+  .cover-body{flex:1;display:flex;flex-direction:column;justify-content:center;padding:60px 56px}
+  .cover-eyebrow{font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--solar-gold);margin-bottom:18px}
+  .cover-title{font-family:'Space Grotesk',sans-serif;font-size:52px;font-weight:700;color:white;line-height:1.1;margin-bottom:10px}
+  .cover-subtitle{font-size:22px;color:rgba(255,255,255,.55);font-weight:300;margin-bottom:48px}
+  .cover-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;background:rgba(255,255,255,.06);border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,.1);max-width:800px}
+  .kpi-block{padding:24px 20px;background:rgba(255,255,255,.04);transition:background .2s}
+  .kpi-block:hover{background:rgba(255,255,255,.09)}
+  .kpi-label{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:8px}
+  .kpi-value{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;color:white;line-height:1}
+  .kpi-unit{font-size:12px;color:var(--solar-gold);font-weight:500;margin-top:4px}
+  .cover-footer{padding:32px 56px;border-top:1px solid rgba(255,255,255,.08);display:flex;justify-content:space-between;align-items:center}
+  .cover-meta{font-size:12px;color:rgba(255,255,255,.4)}
+  .cover-meta strong{color:rgba(255,255,255,.7)}
+  .nav{position:sticky;top:0;z-index:100;background:rgba(11,37,69,.97);backdrop-filter:blur(8px);padding:0 40px;display:flex;gap:4px;align-items:center;border-bottom:1px solid rgba(255,255,255,.08)}
+  .nav-logo{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;color:white;padding:16px 0;margin-right:24px;display:flex;align-items:center;gap:8px}
+  .nav-logo span{color:var(--solar-gold)}
+  .nav a{color:rgba(255,255,255,.6);text-decoration:none;font-size:13px;font-weight:500;padding:16px 12px;border-bottom:2px solid transparent;transition:all .2s}
+  .nav a:hover,.nav a.active{color:white;border-bottom-color:var(--solar-gold)}
+  .section{max-width:1100px;margin:0 auto;padding:64px 40px}
+  .section-header{margin-bottom:40px}
+  .section-tag{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--solar-gold);margin-bottom:8px}
+  .section-title{font-family:'Space Grotesk',sans-serif;font-size:32px;font-weight:700;color:var(--navy);margin-bottom:12px}
+  .section-story{font-size:15px;color:var(--gray-text);line-height:1.8;max-width:720px}
+  .card{background:white;border-radius:16px;padding:32px;box-shadow:0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04);border:1px solid var(--border)}
+  .card-grid{display:grid;gap:20px}
+  .card-grid-2{grid-template-columns:repeat(2,1fr)}
+  .card-grid-3{grid-template-columns:repeat(3,1fr)}
+  .card-grid-4{grid-template-columns:repeat(4,1fr)}
+  .metric{text-align:center;padding:24px 16px}
+  .metric-value{font-family:'Space Grotesk',sans-serif;font-size:32px;font-weight:700;color:var(--navy);line-height:1}
+  .metric-label{font-size:12px;color:var(--gray-text);margin-top:6px;font-weight:500}
+  .metric-sub{font-size:11px;color:var(--solar-gold);margin-top:4px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{background:var(--navy);color:white;padding:10px 14px;text-align:left;font-weight:600;font-size:12px}
+  td{padding:9px 14px;border-bottom:1px solid var(--border)}
+  tr:nth-child(even) td{background:var(--gray-light)}
+  tr.total td{background:var(--navy);color:white;font-weight:700}
+  td.num{text-align:right;font-variant-numeric:tabular-nums}
+  .total-row td{background:var(--green);color:white;font-weight:700}
+  .reg-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:20px}
+  .reg-card{background:var(--sky);border-radius:12px;padding:24px;border:1px solid var(--border);position:relative}
+  .reg-card-tag{display:inline-block;background:var(--green);color:white;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;margin-bottom:10px}
+  .reg-card-title{font-weight:700;font-size:14px;color:var(--navy);margin-bottom:8px}
+  .reg-card-text{font-size:13px;color:var(--gray-text);line-height:1.6}
+  .reg-card-check{font-size:12px;color:var(--green);font-weight:600;margin-top:10px}
+  .legal-article{border:1px solid var(--border);border-radius:10px;margin-bottom:12px;overflow:hidden}
+  .legal-article-head{padding:14px 20px;background:var(--gray-light);cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:13px}
+  .legal-article-body{padding:16px 20px;font-size:13px;color:var(--gray-text);line-height:1.7;background:white}
+  .scen-btn{padding:8px 18px;border-radius:20px;border:1px solid var(--border);background:white;cursor:pointer;font-size:12px;font-weight:500;transition:all .2s}
+  .scen-btn.active{background:var(--navy);color:white;border-color:var(--navy)}
+  .pb-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+  .pb-label{width:160px;font-size:12px;font-weight:500;color:var(--gray-text)}
+  .pb-track{flex:1;background:#E2E8F0;border-radius:6px;height:28px;overflow:hidden}
+  .pb-fill{height:100%;border-radius:6px;display:flex;align-items:center;padding-left:10px;font-size:11px;font-weight:700;color:white;transition:width .8s ease}
+  .pb-val{width:70px;font-size:12px;font-weight:600;color:var(--navy);text-align:right}
+  .fade-in{opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease}
+  .fade-in.visible{opacity:1;transform:none}
+  .divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:0}
+  @media(max-width:768px){
+    .cover-title{font-size:32px}
+    .cover-kpis{grid-template-columns:repeat(2,1fr)}
+    .card-grid-2,.card-grid-3,.card-grid-4{grid-template-columns:1fr}
+    .reg-grid{grid-template-columns:1fr}
+    .section{padding:40px 20px}
+    .nav{padding:0 20px}
+  }
+</style>
+</head>
+<body>
+
+<!-- KAPAK -->
+<div class="cover" id="cover">
+  <div class="cover-sun"></div>
+  <div class="cover-rays"></div>
+  <div class="cover-header">
+    <div class="cover-firma" id="cover-firma"></div>
+    <div class="cover-badge">Lisanssız Üretim Raporu</div>
+  </div>
+  <div class="cover-body">
+    <div class="cover-eyebrow">GES Mahsuplaşma & Yatırım Analizi</div>
+    <div class="cover-title" id="cover-musteri"></div>
+    <div class="cover-subtitle">Güneş Enerjisi Sistemi Fizibilite Raporu</div>
+    <div class="cover-kpis">
+      <div class="kpi-block">
+        <div class="kpi-label">Kurulu Güç</div>
+        <div class="kpi-value" id="kpi-kwp"></div>
+        <div class="kpi-unit">kWp DC</div>
+      </div>
+      <div class="kpi-block">
+        <div class="kpi-label">Yıllık Net Fayda</div>
+        <div class="kpi-value" id="kpi-fayda"></div>
+        <div class="kpi-unit">TL / yıl</div>
+      </div>
+      <div class="kpi-block">
+        <div class="kpi-label">Geri Ödeme</div>
+        <div class="kpi-value" id="kpi-payback"></div>
+        <div class="kpi-unit">yıl (sabit fiyat)</div>
+      </div>
+      <div class="kpi-block">
+        <div class="kpi-label">Yatırım</div>
+        <div class="kpi-value" id="kpi-yatirim"></div>
+        <div class="kpi-unit">TL (KDV hariç)</div>
+      </div>
+    </div>
+  </div>
+  <div class="cover-footer">
+    <div class="cover-meta">Hazırlayan: <strong id="footer-firma"></strong></div>
+    <div class="cover-meta">Tarih: <strong id="footer-tarih"></strong></div>
+    <div class="cover-meta">Tesisat No: <strong id="footer-tesisat"></strong></div>
+  </div>
+</div>
+
+<!-- NAVİGASYON -->
+<nav class="nav">
+  <div class="nav-logo">☀<span>GES</span> Rapor</div>
+  <a href="#bolum1">Tesisat</a>
+  <a href="#bolum2">Madde</a>
+  <a href="#bolum3">Enerji</a>
+  <a href="#bolum4">Finans</a>
+  <a href="#bolum5">Senaryo</a>
+  <a href="#bolum6">Aylık</a>
+  <a href="#bolum7">Yasal</a>
+</nav>
+
+<!-- BÖLÜM 1 — TESİSAT -->
+<div id="bolum1" style="background:white">
+  <div class="section fade-in">
+    <div class="section-header">
+      <div class="section-tag">01 — Tesisat Bilgileri</div>
+      <div class="section-title">Proje & Müşteri Özeti</div>
+    </div>
+    <div class="card">
+      <table id="tesisat-table"></table>
+    </div>
+  </div>
+</div>
+<div class="divider"></div>
+
+<!-- BÖLÜM 2 — BAŞVURU MADDESİ -->
+<div id="bolum2" style="background:var(--gray-light)">
+  <div class="section fade-in">
+    <div class="section-header">
+      <div class="section-tag">02 — Yasal Çerçeve</div>
+      <div class="section-title" id="madde-baslik"></div>
+      <p class="section-story" id="story-madde"></p>
+    </div>
+    <div id="reg-grid" class="reg-grid"></div>
+  </div>
+</div>
+<div class="divider"></div>
+
+<!-- BÖLÜM 3 — ENERJİ -->
+<div id="bolum3" style="background:white">
+  <div class="section fade-in">
+    <div class="section-header">
+      <div class="section-tag">03 — Enerji Analizi</div>
+      <div class="section-title">Saatlik Mahsuplaşma Sonuçları</div>
+      <p class="section-story" id="story-enerji"></p>
+    </div>
+    <div class="card-grid card-grid-4" style="margin-bottom:24px">
+      <div class="card metric">
+        <div class="metric-value" id="m-con"></div>
+        <div class="metric-label">Yıllık Tüketim</div>
+        <div class="metric-sub">kWh</div>
+      </div>
+      <div class="card metric">
+        <div class="metric-value" id="m-gen"></div>
+        <div class="metric-label">GES Üretimi</div>
+        <div class="metric-sub">kWh</div>
+      </div>
+      <div class="card metric" style="border-color:var(--navy);background:var(--sky)">
+        <div class="metric-value" id="m-self"></div>
+        <div class="metric-label">Öz Tüketim</div>
+        <div class="metric-sub" id="m-self-sub"></div>
+      </div>
+      <div class="card metric">
+        <div class="metric-value" id="m-exp"></div>
+        <div class="metric-label">Şebekeye Veriş</div>
+        <div class="metric-sub" id="m-exp-sub"></div>
+      </div>
+    </div>
+    <div class="card-grid card-grid-2">
+      <div class="card"><canvas id="chartEnerji"></canvas></div>
+      <div class="card"><canvas id="chartPie"></canvas></div>
+    </div>
+  </div>
+</div>
+<div class="divider"></div>
+
+<!-- BÖLÜM 4 — FİNANSAL -->
+<div id="bolum4" style="background:var(--gray-light)">
+  <div class="section fade-in">
+    <div class="section-header">
+      <div class="section-tag">04 — Finansal Analiz</div>
+      <div class="section-title">Yıllık Fayda & Amortisman</div>
+      <p class="section-story" id="story-fin"></p>
+    </div>
+    <div class="card">
+      <table>
+        <thead><tr><th>Kalem</th><th class="num">TL / Yıl</th><th class="num">USD / Yıl</th></tr></thead>
+        <tbody id="fin-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<div class="divider"></div>
+
+<!-- BÖLÜM 5 — SENARYO -->
+<div id="bolum5" style="background:white">
+  <div class="section fade-in">
+    <div class="section-header">
+      <div class="section-tag">05 — Senaryo Analizi</div>
+      <div class="section-title">25 Yıllık Projeksiyon</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px" id="scen-btns"></div>
+    <div class="card" style="margin-bottom:20px"><canvas id="chartSenaryolar"></canvas></div>
+    <div class="card" style="margin-bottom:20px" id="payback-bars"></div>
+    <div class="card">
+      <table>
+        <thead><tr><th>Senaryo</th><th class="num">Geri Ödeme</th><th class="num">5. Yıl</th><th class="num">10. Yıl</th><th class="num">25. Yıl (TL)</th><th class="num">25. Yıl (USD)</th></tr></thead>
+        <tbody id="sen-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<div class="divider"></div>
+
+<!-- BÖLÜM 6 — AYLIK -->
+<div id="bolum6" style="background:var(--gray-light)">
+  <div class="section fade-in">
+    <div class="section-header">
+      <div class="section-tag">06 — Aylık Detay</div>
+      <div class="section-title">Enerji & Finansal Akışlar</div>
+    </div>
+    <div class="card" style="margin-bottom:20px"><canvas id="chartFinansal"></canvas></div>
+    <div class="card">
+      <table id="monthlyTable"></table>
+    </div>
+  </div>
+</div>
+<div class="divider"></div>
+
+<!-- BÖLÜM 7 — YASAL -->
+<div id="bolum7" style="background:white">
+  <div class="section fade-in">
+    <div class="section-header">
+      <div class="section-tag">07 — Yasal Dayanak</div>
+      <div class="section-title">Yönetmelik Maddeleri</div>
+    </div>
+    <div id="legalArticles"></div>
+    <p style="font-size:12px;color:var(--gray-text);margin-top:24px;font-style:italic">
+      Bu rapor bilgi amaçlıdır. Kesin yükümlülükler için ilgili dağıtım şirketi,
+      görevli tedarik şirketi ve EPDK kararları esas alınmalıdır.
+    </p>
+  </div>
+</div>
+
+<script>
+const D = {
+  "musteri": "MEZİTLİ BELEDİYEBAŞKANLIĞI ",
+  "firma": "Turgut ALAN",
+  "tarih": "14.06.2026",
+  "tesisat_no": "4011251825",
+  "sozlesme_no": "1021662483",
+  "musteri_no": "101854449",
+  "adres": "ATATÜRK MAH. SANAYİ CD. NO:24./RESMİ Tic.Sic.No : 921047",
+  "vergi_no": "",
+  "tarife_grubu": "Tek Ter. Tek Zam. Kamu ve Özel Hiz. Sekt.",
+  "dagitim_sirketi": "ENERJİSA",
+  "sozlesme_gucu": "960",
+  "basvuru_madde": "Madde 5/1-(h) — Lisanssız Üretim Kapsamı",
+  "kwp": "289.0",
+  "kwe": "259.0",
+  "yatirim": 8000000.0,
+  "opex": 0.0,
+  "usd_kur": 46.1688,
+  "kur_tarihi": "14.06.2026",
+  "aktif": 326.2024,
+  "dagitim": 208.1065,
+  "veris_d": 208.1065,
+  "tarife_adi": "OG Tek Terim - Kamu ve Özel Hizmetler Sektörü ile Diğer",
+  "ann_con": 626217.52,
+  "ann_gen": 409576.71,
+  "ann_self": 281031.17,
+  "ann_imp": 345186.34,
+  "ann_exp": 128545.54,
+  "prod_cap": 1252435.03,
+  "excess": 0,
+  "spec_yield": 1417.2,
+  "baseline": 3345935.92,
+  "post_cost": 1844361.35,
+  "self_sav": 1501574.57,
+  "gross_exp": 419318.63,
+  "exp_dist": 267511.62,
+  "net_exp": 151807.01,
+  "ann_benefit": 1653381.58,
+  "payback": 4.8386,
+  "payback_list": [
+    4.8,
+    3.9,
+    3.4,
+    3.1,
+    2.9
+  ],
+  "months_tr": [
+    "Ocak",
+    "Şubat",
+    "Mart",
+    "Nisan",
+    "Mayıs",
+    "Haziran",
+    "Temmuz",
+    "Ağustos",
+    "Eylül",
+    "Ekim",
+    "Kasım",
+    "Aralık"
+  ],
+  "tuketim": [
+    68920.74,
+    64881.78,
+    42970.84,
+    29794.98,
+    34199.91,
+    50115.01,
+    69996.38,
+    79572.52,
+    58184.32,
+    34290.57,
+    32547.73,
+    60742.72
+  ],
+  "uretim": [
+    17570.58,
+    21669.71,
+    33371.03,
+    39151.64,
+    48492.16,
+    52901.89,
+    50816.13,
+    45931.17,
+    38020.53,
+    27478.62,
+    18515.3,
+    15657.95
+  ],
+  "oz_tuk": [
+    14495.99,
+    18171.71,
+    20865.91,
+    17131.68,
+    22441.2,
+    34078.19,
+    40038.77,
+    39965.47,
+    30506.31,
+    16931.13,
+    12628.0,
+    13776.81
+  ],
+  "s_cekis": [
+    54424.75,
+    46710.07,
+    22104.93,
+    12663.31,
+    11758.71,
+    16036.82,
+    29957.61,
+    39607.06,
+    27678.0,
+    17359.44,
+    19919.73,
+    46965.91
+  ],
+  "s_veris": [
+    3074.59,
+    3498.0,
+    12505.12,
+    22019.96,
+    26050.96,
+    18823.7,
+    10777.36,
+    5965.7,
+    7514.22,
+    10547.49,
+    5887.3,
+    1881.14
+  ],
+  "oz_tl": [
+    77453.37,
+    97093.07,
+    111488.42,
+    91536.07,
+    119905.34,
+    182082.79,
+    213930.73,
+    213539.06,
+    162997.95,
+    90464.51,
+    67472.53,
+    73610.72
+  ],
+  "exp_tl": [
+    3630.96,
+    4130.99,
+    14768.03,
+    26004.67,
+    30765.11,
+    22230.02,
+    12727.62,
+    7045.25,
+    8873.98,
+    12456.16,
+    6952.66,
+    2221.55
+  ],
+  "top_tl": [
+    81084.33,
+    101224.06,
+    126256.46,
+    117540.75,
+    150670.46,
+    204312.81,
+    226658.34,
+    220584.31,
+    171871.93,
+    102920.67,
+    74425.19,
+    75832.27
+  ],
+  "senaryolar": [
+    {
+      "oran": 0.0,
+      "etiket": "%0 — Sabit Fiyat",
+      "kumulatif": [
+        1653381.58,
+        3306763.16,
+        4960144.73,
+        6613526.31,
+        8266907.89,
+        9920289.47,
+        11573671.05,
+        13227052.62,
+        14880434.2,
+        16533815.78,
+        18187197.36,
+        19840578.94,
+        21493960.51,
+        23147342.09,
+        24800723.67,
+        26454105.25,
+        28107486.83,
+        29760868.4,
+        31414249.98,
+        33067631.56,
+        34721013.14,
+        36374394.71,
+        38027776.29,
+        39681157.87,
+        41334539.45
+      ],
+      "yillik": [
+        1653381.58,
+        1653381.58,
+        1653381.58,
+        1653381.58,
+        1653381.58,
+        1653381.58,
+        1653381.58,
+        1653381.58,
+        1653381.58,
+        1653381.58,
+        1653381.58,
+        1653381.58,
+        1653381.58,
+        1653381.58,
+        1653381.58,
+        1653381.58,
+        1653381.58,
+        1653381.58,
+        1653381.58,
+        1653381.58,
+        1653381.58,
+        1653381.58,
+        1653381.58,
+        1653381.58,
+        1653381.58
+      ]
+    },
+    {
+      "oran": 0.15,
+      "etiket": "%15 Yıllık Artış",
+      "kumulatif": [
+        1653381.58,
+        3554770.39,
+        5741367.53,
+        8255954.24,
+        11147728.95,
+        14473269.87,
+        18297641.93,
+        22695669.8,
+        27753401.84,
+        33569793.7,
+        40258644.33,
+        47950822.56,
+        56796827.52,
+        66969733.23,
+        78668574.79,
+        92122242.58,
+        107593960.55,
+        125386436.21,
+        145847783.22,
+        169378332.28,
+        196438463.7,
+        227557614.84,
+        263344638.64,
+        304499716.01,
+        351828054.99
+      ],
+      "yillik": [
+        1653381.58,
+        1901388.81,
+        2186597.14,
+        2514586.71,
+        2891774.71,
+        3325540.92,
+        3824372.06,
+        4398027.87,
+        5057732.05,
+        5816391.85,
+        6688850.63,
+        7692178.23,
+        8846004.96,
+        10172905.71,
+        11698841.56,
+        13453667.8,
+        15471717.97,
+        17792475.66,
+        20461347.01,
+        23530549.06,
+        27060131.42,
+        31119151.13,
+        35787023.8,
+        41155077.37,
+        47328338.98
+      ]
+    },
+    {
+      "oran": 0.3,
+      "etiket": "%30 Yıllık Artış",
+      "kumulatif": [
+        1653381.58,
+        3802777.63,
+        6596992.5,
+        10229471.82,
+        14951694.95,
+        21090585.01,
+        29071142.09,
+        39445866.3,
+        52933007.76,
+        70466291.67,
+        93259560.75,
+        122890810.55,
+        161411435.29,
+        211488247.46,
+        276588103.27,
+        361217915.83,
+        471236672.16,
+        614261055.39,
+        800192753.58,
+        1041903961.24,
+        1356128531.18,
+        1764620472.12,
+        2295659995.33,
+        2986011375.51,
+        3883468169.74
+      ],
+      "yillik": [
+        1653381.58,
+        2149396.05,
+        2794214.87,
+        3632479.33,
+        4722223.12,
+        6138890.06,
+        7980557.08,
+        10374724.21,
+        13487141.47,
+        17533283.91,
+        22793269.08,
+        29631249.8,
+        38520624.74,
+        50076812.17,
+        65099855.82,
+        84629812.56,
+        110018756.33,
+        143024383.23,
+        185931698.19,
+        241711207.65,
+        314224569.95,
+        408491940.93,
+        531039523.21,
+        690351380.18,
+        897456794.23
+      ]
+    },
+    {
+      "oran": 0.45,
+      "etiket": "%45 Yıllık Artış",
+      "kumulatif": [
+        1653381.58,
+        4050784.87,
+        7527019.63,
+        12567560.05,
+        19876343.65,
+        30474079.86,
+        45840797.38,
+        68122537.78,
+        100431061.36,
+        147278420.55,
+        215207091.37,
+        313703664.07,
+        456523694.48,
+        663612738.57,
+        963891852.51,
+        1399296567.71,
+        2030633404.76,
+        2946071818.48,
+        4273457518.38,
+        6198166783.23,
+        8988995217.26,
+        13035696446.6,
+        18903413229.15,
+        27411602563.84,
+        39748477099.15
+      ],
+      "yillik": [
+        1653381.58,
+        2397403.29,
+        3476234.77,
+        5040540.41,
+        7308783.6,
+        10597736.22,
+        15366717.52,
+        22281740.4,
+        32308523.58,
+        46847359.19,
+        67928670.82,
+        98496572.7,
+        142820030.41,
+        207089044.09,
+        300279113.94,
+        435404715.21,
+        631336837.05,
+        915438413.72,
+        1327385699.9,
+        1924709264.85,
+        2790828434.03,
+        4046701229.34,
+        5867716782.55,
+        8508189334.69,
+        12336874535.31
+      ]
+    },
+    {
+      "oran": 0.6,
+      "etiket": "%60 Yıllık Artış",
+      "kumulatif": [
+        1653381.58,
+        4298792.1,
+        8531448.94,
+        15303699.89,
+        26139301.39,
+        43476263.81,
+        71215403.67,
+        115598027.45,
+        186610225.51,
+        300229742.39,
+        482020969.4,
+        772886932.61,
+        1238272473.76,
+        1982889339.59,
+        3174276324.92,
+        5080495501.45,
+        8130446183.91,
+        13010367275.83,
+        20818241022.9,
+        33310839018.22,
+        53298995810.73,
+        85280046678.74,
+        136449728067.57,
+        218321218289.69,
+        349315602645.07
+      ],
+      "yillik": [
+        1653381.58,
+        2645410.52,
+        4232656.84,
+        6772250.94,
+        10835601.51,
+        17336962.41,
+        27739139.86,
+        44382623.78,
+        71012198.05,
+        113619516.88,
+        181791227.01,
+        290865963.22,
+        465385541.15,
+        744616865.83,
+        1191386985.33,
+        1906219176.53,
+        3049950682.45,
+        4879921091.92,
+        7807873747.07,
+        12492597995.32,
+        19988156792.51,
+        31981050868.01,
+        51169681388.82,
+        81871490222.12,
+        130994384355.39
+      ]
+    }
+  ],
+  "maddeler": [
+    {
+      "tag": "Madde 5/1-(h)",
+      "title": "Madde 5/1-(h) — Lisanssız Üretim Kapsamı",
+      "body": "Belediyeler ve bağlı kuruluşları ile sanayi tesisleri; bağlantı anlaşmasındaki sözleşme gücünün iki katına kadar yenilenebilir enerji kaynaklarına dayalı üretim tesisi kurabilir. Lisans alma ve şirket kurma yükümlülüğü bulunmamaktadır."
+    },
+    {
+      "tag": "Madde 5/1-(c)",
+      "title": "Madde 5/1-(c) — 1 MW Altı Üretim",
+      "body": "Kurulu gücü 1 MW veya Cumhurbaşkanı tarafından belirlenmiş kurulu güç üst sınırına kadar olan yenilenebilir enerji kaynaklarına dayalı üretim tesisleri lisanssız kurulabilir."
+    },
+    {
+      "tag": "Madde 26/1",
+      "title": "Madde 26/1 — Saatlik Mahsuplaşma",
+      "body": "12.05.2019 tarihinden itibaren bağlantı anlaşmasına çağrı mektubu almaya hak kazanan üretim tesislerinin mahsuplaşma işlemleri saatlik olarak yapılır.\n• Öz tüketim = min(tüketim, üretim)\n• Şebekeden çekiş = max(tüketim − üretim, 0)\n• Şebekeye veriş = max(üretim − tüketim, 0)"
+    },
+    {
+      "tag": "Madde 26/4",
+      "title": "Madde 26/4 — 10 Yıl Alım Garantisi",
+      "body": "Mahsuplaşma sonucunda şebekeye verilen ihtiyaç fazlası enerji, görevli tedarik şirketi tarafından on yıl süreyle satın alınır."
+    },
+    {
+      "tag": "Madde 26/17",
+      "title": "Madde 26/17 — Yıllık Üretim Üst Sınırı",
+      "body": "Üretim tesisinin bir takvim yılında üretebileceği enerji miktarı, ilişkili tüketim tesisinin yıllık toplam tüketiminin iki katını geçemez. Bu sınırı aşan üretim bedelsiz YEKDEM katkısı olarak değerlendirilir; üreticiye herhangi bir ödeme yapılmaz."
+    },
+    {
+      "tag": "Madde 28/5",
+      "title": "Madde 28/5 — Sözleşme Gücü Koşulu",
+      "body": "Belediyeler ve sanayi tesisleri için ilişkilendirilen tüketim tesislerinin sözleşme güçleri toplamı, üretim tesisi kurulu gücünden az olamaz. Bu koşulun sağlanmaması halinde üretilen enerji bedelsiz YEKDEM katkısı olarak değerlendirilir."
+    }
+  ],
+  "musteri_tip": "Belediye / Kamu Kurumu",
+  "baglanti": "Aynı ölçüm noktası"
+};
+
+const RENK_PAL = ['#2980B9','#27AE60','#E67E22','#8E44AD','#C0392B'];
+
+function fmtN(v) {
+  if (v === null || v === undefined) return '—';
+  return Math.round(v).toLocaleString('tr-TR');
+}
+
+function s(id) { return document.getElementById(id); }
+function set(id, html) { const el = s(id); if(el) el.innerHTML = html; }
+
+function initRapor() {
+
+  // KAPAK
+  set('cover-firma',   D.firma);
+  set('cover-musteri', D.musteri);
+  set('footer-firma',  D.firma);
+  set('footer-tarih',  D.tarih);
+  set('footer-tesisat',D.tesisat_no);
+  set('kpi-kwp',     D.kwp);
+  set('kpi-fayda',   fmtN(D.ann_benefit));
+  set('kpi-payback', D.payback ? D.payback.toFixed(1) : '—');
+  set('kpi-yatirim', fmtN(D.yatirim));
+
+  // BÖLÜM 1
+  s('tesisat-table').innerHTML = [
+    ['Hazırlayan Firma', D.firma],
+    ['Kurulu Güç (DC)',  D.kwp + ' kWp'],
+    ['Kurulu Güç (AC)',  D.kwe + ' kWe'],
+    ['Yatırım Bedeli (KDV Hariç)', fmtN(D.yatirim) + ' TL'],
+    ['Yıllık İşletme-Bakım', fmtN(D.opex) + ' TL'],
+    ['USD/TL Kuru', D.usd_kur + ' TL (' + D.kur_tarihi + ')'],
+    ['Rapor Tarihi', D.tarih],
+    ['Başvuru Maddesi', D.basvuru_madde]
+  ].map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('');
+
+  // BÖLÜM 2
+  set('madde-baslik', 'Neden ' + D.basvuru_madde + '?');
+  set('story-madde',
+    `<p>Türkiye'de lisanssız güneş enerjisi sistemi kurmak için birden fazla yasal yol var.
+    Bu projenin doğru yolu <strong>${D.basvuru_madde}</strong>.
+    Müşteri tipi <strong>${D.musteri_tip || ''}</strong> olduğundan ve
+    bağlantı modeli <strong>${D.baglanti || ''}</strong> olduğundan
+    bu bent kapsamına girmektedir.</p>`);
+
+  s('reg-grid').innerHTML = [
+    {
+      selected: true,
+      tag: D.basvuru_madde,
+      title: (D.maddeler || [])[0]?.title || D.basvuru_madde,
+      text:  (D.maddeler || [])[0]?.body  || '',
+      check: '✓ Bu projeye uygulanır'
+    },
+    {
+      selected: false,
+      tag: 'Madde 26/17',
+      title: 'Madde 26/17 — Yıllık Üretim Sınırı',
+      text: 'Yıllık üretim, yıllık tüketimin iki katını geçemez.',
+      check: '✓ ' + fmtN(D.ann_gen) + ' kWh üretim ≤ ' + fmtN(D.ann_con * 2) + ' kWh limit'
+    }
+  ].map(c => `
+    <div class="reg-card">
+      <div class="reg-card-tag" style="${c.selected ? '' : 'background:#6B7280'}">${c.selected ? '✓ Seçilen Madde' : 'Kontrol Edildi'}</div>
+      <div class="reg-card-title">${c.title}</div>
+      <div class="reg-card-text">${c.text}</div>
+      <div class="reg-card-check" style="color:var(--green)">${c.check}</div>
+    </div>`).join('');
+
+  // BÖLÜM 3
+  const selfPct = D.ann_gen > 0 ? (D.ann_self / D.ann_gen * 100).toFixed(1) : 0;
+  const expPct  = D.ann_gen > 0 ? (D.ann_exp  / D.ann_gen * 100).toFixed(1) : 0;
+  set('story-enerji',
+    `<p>Yönetmeliğin 26. maddesi gereğince üretim ve tüketim <strong>saatlik bazda</strong>
+    karşılaştırılır. Yıllık özgül verim: <strong>${D.spec_yield} kWh/kWp</strong>.</p>`);
+  set('m-con',      fmtN(D.ann_con));
+  set('m-gen',      fmtN(D.ann_gen));
+  set('m-self',     fmtN(D.ann_self));
+  set('m-self-sub', 'kWh · %' + selfPct + ' oran');
+  set('m-exp',      fmtN(D.ann_exp));
+  set('m-exp-sub',  'kWh · %' + expPct  + ' oran');
+
+  // BÖLÜM 4
+  set('story-fin',
+    `<p>GES'in finansal faydası iki kanaldan gelir. Birincisi <strong>öz tüketim tasarrufu</strong>
+    (<strong>${fmtN(D.self_sav)} TL/yıl</strong>). İkincisi <strong>şebekeye veriş geliri</strong>
+    (<strong>${fmtN(D.net_exp)} TL/yıl</strong>).
+    Toplam yıllık net fayda: <strong>${fmtN(D.ann_benefit)} TL</strong>.</p>`);
+
+  s('fin-tbody').innerHTML = [
+    ['GES öncesi yıllık elektrik maliyeti (baz)',  D.baseline,    D.baseline   / D.usd_kur, false],
+    ['GES sonrası şebekeden çekiş maliyeti',       D.post_cost,   D.post_cost  / D.usd_kur, false],
+    null,
+    ['➕ Öz tüketimden yıllık tasarruf',           D.self_sav,    D.self_sav   / D.usd_kur, false],
+    ['➕ Net ihtiyaç fazlası enerji geliri',        D.net_exp,     D.net_exp    / D.usd_kur, false],
+    ['➖ Yıllık işletme-bakım gideri',             -D.opex,      -D.opex       / D.usd_kur, false],
+    ['★ TOPLAM YILLIK NET FAYDA',                  D.ann_benefit, D.ann_benefit / D.usd_kur, true],
+    ['Yatırım Bedeli (KDV Hariç)',                 D.yatirim,     D.yatirim    / D.usd_kur, false],
+    ['Basit Geri Ödeme Süresi (%0 artış)',
+     D.payback ? D.payback.toFixed(1) + ' yıl' : '—', '—', false]
+  ].map(r => {
+    if (!r) return '<tr><td colspan="3" style="height:4px;padding:0"></td></tr>';
+    const cls = r[3] ? ' class="total-row"' : '';
+    const v1  = typeof r[1] === 'string' ? r[1] : fmtN(r[1]);
+    const v2  = typeof r[2] === 'string' ? r[2] : fmtN(r[2]);
+    return `<tr${cls}><td>${r[0]}</td><td class="num">${v1}</td><td class="num">${v2}</td></tr>`;
+  }).join('');
+
+  // BÖLÜM 5
+  const SCEN = D.senaryolar || [];
+  window.visib = SCEN.map(() => true);
+  s('scen-btns').innerHTML = SCEN.map((sc, i) =>
+    `<button class="scen-btn active" onclick="toggleScen(this,${i})">${sc.etiket}</button>`
+  ).join('');
+
+  function buildScenChart() {
+    const ctx = s('chartSenaryolar'); if (!ctx) return;
+    if (window.scenChart) window.scenChart.destroy();
+    window.scenChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: Array.from({length:25}, (_, i) => i + 1),
+        datasets: SCEN.map((sc, i) => ({
+          label: sc.etiket,
+          data: sc.kumulatif.map(v => v / 1e6),
+          borderColor: RENK_PAL[i % RENK_PAL.length],
+          backgroundColor: 'transparent',
+          borderWidth: window.visib[i] ? 2.5 : 0,
+          hidden: !window.visib[i],
+          pointRadius: 0,
+          tension: 0.3
+        })).concat([{
+          label: 'Yatırım (' + fmtN(D.yatirim) + ' TL)',
+          data: Array(25).fill(D.yatirim / 1e6),
+          borderColor: '#E74C3C',
+          borderDash: [8,4],
+          borderWidth: 2,
+          pointRadius: 0,
+          fill: false,
+          backgroundColor: 'transparent'
+        }])
+      },
+      options: { responsive: true }
+    });
+  }
+  buildScenChart();
+
+  window.toggleScen = function(btn, i) {
+    window.visib[i] = !window.visib[i];
+    btn.classList.toggle('active', window.visib[i]);
+    buildScenChart();
+  };
+
+  s('payback-bars').innerHTML = SCEN.map((sc, i) => {
+    const pb  = (D.payback_list || [])[i];
+    const pct = pb ? Math.min(pb / 26 * 100, 100) : 100;
+    const lbl = pb ? pb.toFixed(1) + ' yıl' : '>25 yıl';
+    return `<div class="pb-row">
+      <div class="pb-label">${sc.etiket}</div>
+      <div class="pb-track"><div class="pb-fill" style="width:${pct}%;background:${RENK_PAL[i%RENK_PAL.length]}">${lbl}</div></div>
+      <div class="pb-val">${lbl}</div>
+    </div>`;
+  }).join('');
+
+  s('sen-tbody').innerHTML = SCEN.map((sc, i) => {
+    const k25 = sc.kumulatif[24] || 0;
+    const k10 = sc.kumulatif[9]  || 0;
+    const k5  = sc.kumulatif[4]  || 0;
+    const pb  = (D.payback_list || [])[i];
+    return `<tr>
+      <td><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${RENK_PAL[i%RENK_PAL.length]};margin-right:8px;vertical-align:middle"></span>${sc.etiket}</td>
+      <td class="num"><strong>${pb ? pb.toFixed(1) + ' yıl' : '>25 yıl'}</strong></td>
+      <td class="num">${(k5/1e6).toFixed(2)} M TL</td>
+      <td class="num">${(k10/1e6).toFixed(2)} M TL</td>
+      <td class="num">${(k25/1e6).toFixed(2)} M TL</td>
+      <td class="num">${(k25/D.usd_kur/1e6).toFixed(2)} M USD</td>
+    </tr>`;
+  }).join('');
+
+  // BÖLÜM 6
+  const mt  = s('monthlyTable');
+  const MN  = D.months_tr || [];
+  mt.innerHTML = `<thead><tr>
+    <th>Dönem</th><th class="num">Tüketim (kWh)</th><th class="num">Üretim (kWh)</th>
+    <th class="num">Öz Tük. (kWh)</th><th class="num">Ş.Veriş (kWh)</th>
+    <th class="num">Fayda (TL)</th><th class="num">Fayda (USD)</th>
+  </tr></thead>`;
+  const mtb = document.createElement('tbody');
+  let tot = [0,0,0,0,0,0];
+  MN.forEach((m, i) => {
+    const vs = [D.tuketim[i], D.uretim[i], D.oz_tuk[i], D.s_veris[i],
+                D.top_tl[i], D.top_tl[i] / D.usd_kur];
+    vs.forEach((v, j) => tot[j] += v);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${m}</td>` + vs.map(v =>
+      `<td class="num">${Math.round(v).toLocaleString('tr-TR')}</td>`).join('');
+    mtb.appendChild(tr);
+  });
+  const trTot = document.createElement('tr');
+  trTot.className = 'total';
+  trTot.innerHTML = `<td>TOPLAM</td>` + tot.map(v =>
+    `<td class="num">${Math.round(v).toLocaleString('tr-TR')}</td>`).join('');
+  mtb.appendChild(trTot);
+  mt.appendChild(mtb);
+
+  // BÖLÜM 7
+  const la = s('legalArticles');
+  (D.maddeler || []).forEach((m, i) => {
+    const d = document.createElement('div');
+    d.className = 'legal-article';
+    d.innerHTML = `
+      <div class="legal-article-head" onclick="
+        this.nextElementSibling.style.display =
+          this.nextElementSibling.style.display === 'none' ? 'block' : 'none';
+        this.querySelector('span:last-child').textContent =
+          this.nextElementSibling.style.display === 'none' ? '▼' : '▲';">
+        <span><strong style="color:var(--navy-mid);margin-right:10px">${m.tag}</strong>${m.title}</span>
+        <span>${i === 0 ? '▲' : '▼'}</span>
+      </div>
+      <div class="legal-article-body" style="display:${i === 0 ? 'block' : 'none'}">
+        ${(m.body || '').replace(/\n/g,'<br>')}
+      </div>`;
+    la.appendChild(d);
+  });
+
+  // GRAFİKLER
+  if (s('chartEnerji')) new Chart(s('chartEnerji'), {
+    type: 'line',
+    data: { labels: MN, datasets: [
+      {label:'Tüketim',         data:D.tuketim, borderColor:'#2980B9', borderWidth:2.5, pointRadius:4, tension:0.3, fill:false},
+      {label:'GES Üretimi',     data:D.uretim,  borderColor:'#27AE60', borderWidth:2.5, pointRadius:4, tension:0.3, fill:false},
+      {label:'Öz Tüketim',      data:D.oz_tuk,  borderColor:'#E67E22', borderWidth:2,   pointRadius:3, tension:0.3, fill:false},
+      {label:'Şebekeden Çekiş', data:D.s_cekis, borderColor:'#95A5A6', borderWidth:1.5, pointRadius:3, tension:0.3, fill:false},
+      {label:'Şebekeye Veriş',  data:D.s_veris, borderColor:'#8E44AD', borderWidth:2,   pointRadius:3, tension:0.3, fill:false},
+    ]},
+    options: { responsive: true }
+  });
+
+  if (s('chartPie')) new Chart(s('chartPie'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Öz Tüketim', 'Şebekeye Veriş'],
+      datasets: [{
+        data: [D.ann_self, D.ann_exp],
+        backgroundColor: ['#2980B9','#E67E22'],
+        borderWidth: 3, borderColor: '#fff'
+      }]
+    },
+    options: { responsive: true }
+  });
+
+  if (s('chartFinansal')) new Chart(s('chartFinansal'), {
+    type: 'bar',
+    data: { labels: MN, datasets: [
+      {label:'Öz Tüketim Tasarrufu', data:D.oz_tl,  backgroundColor:'#2980B9', borderRadius:4},
+      {label:'Net Veriş Geliri',     data:D.exp_tl, backgroundColor:'#E67E22', borderRadius:4},
+    ]},
+    options: { responsive:true, scales:{ x:{stacked:true}, y:{stacked:true} } }
+  });
+
+  // Scroll animasyonu
+  const obs = new IntersectionObserver(
+    entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
+    { threshold: 0.05 }
+  );
+  document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+}
+
+window.addEventListener('load', initRapor);
+</script>
+</body>
+</html>
